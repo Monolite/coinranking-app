@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import '../provider/coinranking_api.dart';
+import 'package:coinranking/api/coinranking_api.dart';
 
 void main() {
   late final CoinRankingApi api;
