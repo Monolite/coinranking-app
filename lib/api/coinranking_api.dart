@@ -1,3 +1,4 @@
+import 'package:coinranking/model/ohlc_result.dart';
 import 'package:dio/dio.dart';
 
 import '../model/coin_result.dart';
@@ -25,6 +26,54 @@ class CoinRankingApi {
   final Duration connectTimeout;
   final Duration receiveTimeout;
   final String apiKey;
+
+  Future<List<OhlcResult>> getOhlc(String coinId) async {
+    final response = await dio.get<Map<String, dynamic>>('/coin/$coinId/ohlc', queryParameters: {
+      'referenceCurrencyUuid': 'yhjMzLPhuIDl',
+      'interval': 'day',
+    });
+
+    final result = <OhlcResult>[];
+
+    if (response.data != null) {
+      final data = response.data;
+
+      if (data?.containsKey('data') ?? false) {
+        final content = data?['data'];
+
+        if (content is Map<String, dynamic>?) {
+          if (content?.containsKey('ohlc') ?? false) {
+            final ohlcList = content?['ohlc'] as List<dynamic>?;
+
+            if (ohlcList != null && ohlcList.isNotEmpty) {
+              for (final ohlcData in ohlcList) {
+                if (ohlcData is Map<String, dynamic>) {
+                  final ohlcJson = ohlcData;
+
+                  final instance = OhlcResult(
+                    startingAt:
+                        DateTime.fromMillisecondsSinceEpoch(1000 * int.parse(ohlcJson['startingAt'].toString())),
+                    endingAt: DateTime.fromMillisecondsSinceEpoch(1000 * int.parse(ohlcJson['endingAt'].toString())),
+                    //startingAt: ohlcJson['startingAt'],
+                    //endingAt: ohlcJson['endingAt'],
+                    open: ohlcJson['open'],
+                    high: ohlcJson['high'],
+                    low: ohlcJson['low'],
+                    close: ohlcJson['close'],
+                    avg: ohlcJson['avg'],
+                  );
+
+                  result.add(instance);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    return result;
+  }
 
   Future<List<CoinResult>> getCoins() async {
     final response = await dio.get<Map<String, dynamic>>('/coins', data: {

@@ -13,4 +13,10 @@ void main() {
 
     print(coins);
   });
+
+  test('Get ohlc of Bitcoin', () async {
+    final ohlc = await api.getOhlc('Qwsogvtv82FCd');
+
+    print(ohlc);
+  });
 }
